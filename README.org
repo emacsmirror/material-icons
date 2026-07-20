@@ -25,9 +25,10 @@ The package requires Emacs 27.1 or later.
 #+begin_src elisp
 (use-package material-icon
   :vc (:url "https://github.com/zHaOdANiuu/material-icon.el")
-  :hook ((dired-mode    . nn-dired-icons-mode)
-         (ibuffer-mode  . nn-ibuffer-icons-mode)
-         (speedbar-mode . nn-speedbar-icons-mode)))
+  :hook ((dired-mode    . material-icon-dired-icons-mode)
+         (ibuffer-mode  . material-icon-ibuffer-icons-mode))
+  :config
+  (material-icon-speedbar-icons-mode 1))
 #+end_src
 
 *From source (traditional)*
@@ -58,7 +59,7 @@ Install and enable globally with ~use-package~:
 
 #+begin_src elisp
 (use-package material-icon
-  :ensure t
+  :vc (:url "https://github.com/zHaOdANiuu/material-icon.el")
   :hook ((dired-mode    . material-icon-dired-icons-mode)
          (ibuffer-mode  . material-icon-ibuffer-icons-mode))
   :config
@@ -68,6 +69,8 @@ Install and enable globally with ~use-package~:
 Or manually:
 
 #+begin_src elisp
+(add-to-list 'load-path "/path/to/material-icon")
+(require 'material-icon)
 (add-hook 'dired-mode-hook    #'material-icon-dired-icons-mode)
 (add-hook 'ibuffer-mode-hook  #'material-icon-ibuffer-icons-mode)
 (material-icon-speedbar-icons-mode 1)
