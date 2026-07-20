@@ -1,0 +1,4 @@
+;; -*- lexical-binding: t -*-
+(eldev-use-package-archive 'melpa-stable)
+(setq eldev-project-main-file "material-icon.el")
+(setq package-check-signature nil)
