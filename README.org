@@ -10,7 +10,7 @@ and folder-type icons in Dired, Ibuffer, and Speedbar buffers.
 
 *Features*
 
-- 1,247 hand-crafted SVG icons for file types and folder names
+- 1,200+ hand-crafted SVG icons for file types and folder names
 - File-type icons in Dired (~material-icon-dired-icons-mode~)
 - Mode-based icons in Ibuffer (~material-icon-ibuffer-icons-mode~)
 - Folder and file icons in Speedbar (~material-icon-speedbar-icons-mode~)
@@ -27,8 +27,10 @@ The package requires Emacs 27.1 or later.
   :vc (:url "https://github.com/zHaOdANiuu/material-icon.el")
   :hook ((dired-mode    . material-icon-dired-icons-mode)
          (ibuffer-mode  . material-icon-ibuffer-icons-mode))
-  :config
-  (material-icon-speedbar-icons-mode 1))
+  :init
+  (setq material-icon-size 22)
+  (with-eval-after-load 'speedbar
+    (material-icon-speedbar-icons-mode 1)))
 #+end_src
 
 *From source (traditional)*
@@ -43,7 +45,8 @@ git clone https://github.com/zHaOdANiuu/material-icon.el.git
 
 (add-hook dired-mode-hook #'material-icon-dired-icons-mode)
 (add-hook ibuffer-mode-hook #'material-icon-ibuffer-icons-mode)
-(add-hook speedbar-mode-hook #'material-icon-speedbar-icons-mode)
+(with-eval-after-load 'speedbar
+  (material-icon-speedbar-icons-mode 1))
 #+end_src
 
 *Usage*
@@ -54,27 +57,6 @@ git clone https://github.com/zHaOdANiuu/material-icon.el.git
 | ~M-x material-icon-ibuffer-icons-mode~  | Toggle mode icons in Ibuffer            |
 | ~M-x material-icon-speedbar-icons-mode~ | Toggle file/folder icons in Speedbar    |
 | ~M-x material-icon-set-icon-size~       | Change icon size (default: font height) |
-
-Install and enable globally with ~use-package~:
-
-#+begin_src elisp
-(use-package material-icon
-  :vc (:url "https://github.com/zHaOdANiuu/material-icon.el")
-  :hook ((dired-mode    . material-icon-dired-icons-mode)
-         (ibuffer-mode  . material-icon-ibuffer-icons-mode))
-  :config
-  (material-icon-speedbar-icons-mode 1))
-#+end_src
-
-Or manually:
-
-#+begin_src elisp
-(add-to-list 'load-path "/path/to/material-icon")
-(require 'material-icon)
-(add-hook 'dired-mode-hook    #'material-icon-dired-icons-mode)
-(add-hook 'ibuffer-mode-hook  #'material-icon-ibuffer-icons-mode)
-(material-icon-speedbar-icons-mode 1)
-#+end_src
 
 *Customization*
 
@@ -89,7 +71,7 @@ Or manually:
 *Icon Set*
 
 This package is a port of [[https://github.com/material-extensions/vscode-material-icon-theme][vscode-material-icon-theme]].
-The ~icons/~ directory contains 1,247 SVG files from the upstream
+The ~icons/~ directory contains 1,200+ SVG files from the upstream
 project, covering:
 
 - 1,200+ file-type icons (by extension or filename)
