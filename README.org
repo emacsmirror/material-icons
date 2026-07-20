@@ -2,8 +2,6 @@
 #+author: Daniu Zhao
 #+language: en
 
-[[https://github.com/zHaOdANiuu/material-icon.el][https://img.shields.io/badge/GitHub-zHaOdANiuu%2Fmaterial--icon.el-blue]]
-
 Material Icon Theme integration for Emacs.  Port of the popular
 [[https://github.com/material-extensions/vscode-material-icon-theme][vscode-material-icon-theme]] extension — display SVG file-type
 and folder-type icons in Dired, Ibuffer, and Speedbar buffers.
@@ -40,7 +38,7 @@ git clone https://github.com/zHaOdANiuu/material-icon.el.git
 #+end_src
 
 #+begin_src elisp
-(add-to-list 'load-path "/path/to/fido-frame")
+(add-to-list 'load-path "/path/to/Material Icon")
 (require 'material-icon)
 
 (add-hook dired-mode-hook #'material-icon-dired-icons-mode)
