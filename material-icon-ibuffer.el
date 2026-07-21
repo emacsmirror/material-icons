@@ -25,107 +25,109 @@
 
 ;;; Commentary:
 
-;; Adds an SVG icon column to Ibuffer, showing a mode-appropriate icon
-;; for each buffer.  Enable `material-icon-ibuffer-icons-mode' to activate.
+;; Adds an SVG icon column to Ibuffer, showing a file-type icon for each
+;; buffer.  Icons are resolved via `material-icon-get-icon-for-file' and
+;; `material-icon-get-icon-for-dir', reusing the project's file-map and
+;; folder-map — no separate mode enumeration needed.
+;; Enable `material-icon-ibuffer-icons-mode' to activate.
 
 ;;; Code:
 
 (require 'material-icon-utils)
 (require 'ibuffer)
 
-(defvar material-icon-ibuffer--mode-icon-table
-  (let ((tab (make-hash-table :test 'eq :size 60))
-        (modes
-         '(("python.svg"     python-mode)
-           ("rust.svg"       rust-mode)
-           ("go.svg"         go-mode)
-           ("java.svg"       java-mode)
-           ("javascript.svg" javascript-mode js-mode)
-           ("typescript.svg" typescript-mode ts-mode)
-           ("c.svg"          c-mode c-ts-mode)
-           ("cpp.svg"        c++-mode c++-ts-mode)
-           ("csharp.svg"     csharp-mode)
-           ("ruby.svg"       ruby-mode)
-           ("php.svg"        php-mode)
-           ("swift.svg"      swift-mode)
-           ("kotlin.svg"     kotlin-mode)
-           ("scala.svg"      scala-mode)
-           ("haskell.svg"    haskell-mode)
-           ("erlang.svg"     erlang-mode)
-           ("elixir.svg"     elixir-mode)
-           ("clojure.svg"    clojure-mode)
-           ("lisp.svg"       lisp-mode)
-           ("emacs.svg"      emacs-lisp-mode)
-           ("scheme.svg"     scheme-mode)
-           ("racket.svg"     racket-mode)
-           ("lua.svg"        lua-mode)
-           ("perl.svg"       perl-mode)
-           ("r.svg"          r-mode)
-           ("julia.svg"      julia-mode)
-           ("matlab.svg"     matlab-mode)
-           ("sql.svg"        sql-mode)
-           ("html.svg"       html-mode)
-           ("css.svg"        css-mode)
-           ("sass.svg"       scss-mode)
-           ("less.svg"       less-mode)
-           ("json.svg"       json-mode)
-           ("yaml.svg"       yaml-mode)
-           ("xml.svg"        xml-mode)
-           ("markdown.svg"   markdown-mode)
-           ("org.svg"        org-mode)
-           ("tex.svg"        tex-mode)
-           ("latex.svg"      latex-mode)
-           ("shell.svg"      sh-mode bash-mode fish-mode)
-           ("powershell.svg" powershell-mode)
-           ("docker.svg"     dockerfile-mode docker-compose-mode)
-           ("makefile.svg"   makefile-mode)
-           ("cmake.svg"      cmake-mode)
-           ("toml.svg"       toml-mode)
-           ("ini.svg"        ini-mode)
-           ("settings.svg"   conf-mode)
-           ("folder.svg"     dired-mode)
-           ("git.svg"        magit-mode git-commit-mode)
-           ("diff.svg"       diff-mode)
-           ("console.svg"    compilation-mode messages-buffer-mode)
-           ("terminal.svg"   term-mode vterm-mode eshell-mode)
-           ("help.svg"       help-mode))))
-    (dolist (entry modes)
-      (let ((icon (car entry)))
-        (dolist (mode (cdr entry))
-          (puthash mode icon tab))))
-    tab)
-  "Hash table: major-mode symbol -> SVG icon filename.
-Built at load time for O(1) lookup.  Only used by the Ibuffer column.")
+(defgroup material-icon-ibuffer nil
+  "Display SVG icons in Ibuffer."
+  :group 'material-icon
+  :group 'ibuffer)
+
+(defcustom material-icon-ibuffer-icon t
+  "Whether to display icons in Ibuffer."
+  :group 'material-icon-ibuffer
+  :type 'boolean)
+
+(defcustom material-icon-ibuffer-human-readable-size t
+  "Use human-readable file size in Ibuffer."
+  :group 'material-icon-ibuffer
+  :type 'boolean)
+
+(defcustom material-icon-ibuffer-formats
+  `((mark modified read-only ,(if (>= emacs-major-version 26) 'locked "")
+          " " (icon 2 2)
+          (name 18 18 :left :elide)
+          " " (size-h 9 -1 :right)
+          " " (mode 16 16 :left :elide)
+          " " filename-and-process)
+    (mark " " (name 16 -1) " " filename))
+  "A list of ways to display buffer lines with `material-icon'.
+See `ibuffer-formats' for details."
+  :group 'material-icon-ibuffer
+  :type '(repeat sexp))
 
 (define-ibuffer-column icon
   (:name "" :inline t)
-  (let* ((icon-name (or (gethash major-mode material-icon-ibuffer--mode-icon-table)
-                        material-icon-fallback-file))
-         (icon-path (material-icon-resolve-icon icon-name material-icon-fallback-file))
-         (icon (material-icon-create-icon-image icon-path)))
-    (if icon
-        (concat (propertize " " 'display icon) " ")
-      "  ")))
+  (if material-icon-ibuffer-icon
+      (let* ((buf-file (buffer-file-name))
+             (icon-path
+              (cond
+               ((eq major-mode 'dired-mode)
+                (material-icon-get-icon-for-dir (buffer-name)))
+               (buf-file
+                (material-icon-get-icon-for-file buf-file))
+               (t
+                (material-icon-get-icon-for-file (buffer-name)))))
+             (icon (material-icon-create-icon-image icon-path)))
+        (if icon
+            (concat (propertize " " 'display icon) " ")
+          "  "))
+    "  "))
+
+(defun material-icon-ibuffer--file-size-human-readable-to-bytes (file-size &optional flavor)
+  "Convert a human-readable FILE-SIZE string into bytes with FLAVOR."
+  (let ((power (if (or (null flavor) (eq flavor 'iec))
+                   1024.0
+                 1000.0))
+        (prefixes '("k" "M" "G" "T" "P" "E" "Z" "Y"))
+        (iterator 0))
+    (catch 'bytes
+      (while
+          (cond
+           ((equal iterator 8)
+            (throw 'bytes (* (string-to-number file-size) (expt power 0))))
+           ((string-match (elt prefixes iterator) file-size)
+            (throw 'bytes (* (string-to-number file-size) (expt power (1+ iterator)))))
+           (t
+            (setq iterator (1+ iterator))))))))
+
+(define-ibuffer-column size-h
+  (:name "Size"
+   :inline t
+   :header-mouse-map ibuffer-size-header-map
+   :summarizer
+   (lambda (column-strings)
+     (let ((total 0))
+       (dolist (string column-strings)
+         (setq total
+               (+ (float (material-icon-ibuffer--file-size-human-readable-to-bytes string))
+                  total)))
+       (if material-icon-ibuffer-human-readable-size
+           (file-size-human-readable total)
+         (format "%.0f" total)))))
+  (let ((size (buffer-size)))
+    (if material-icon-ibuffer-human-readable-size
+        (file-size-human-readable size)
+      (format "%s" size))))
 
 (defvar material-icon-ibuffer-old-formats ibuffer-formats
   "Saved original `ibuffer-formats' before enabling icon mode.
 Restored when `material-icon-ibuffer-icons-mode' is disabled.")
 
-(defvar material-icon-ibuffer-formats
-  `((mark modified read-only ,(if (>= emacs-major-version 26) 'locked "")
-          " " (icon 2 2)
-          (name 18 18 :left :elide)
-          " " (size 9 -1 :right)
-          " " (mode 16 16 :left :elide)
-          " " filename-and-process)
-    (mark " " (name 16 -1) " " filename))
-  "Ibuffer column formats with the SVG icon column prepended.")
-
 ;;;###autoload
 (define-minor-mode material-icon-ibuffer-icons-mode
-  "Toggle display of SVG mode icons in the Ibuffer buffer list.
+  "Toggle display of SVG icons in the Ibuffer buffer list.
 With prefix argument ARG, enable if ARG is positive, disable otherwise.
-Icons appear in the first column of the Ibuffer listing."
+Icons are resolved from the buffer's file name (or directory name for
+dired buffers), reusing the project's file-map and folder-map."
   :lighter nil
   :group 'material-icon
   (when (derived-mode-p 'ibuffer-mode)
