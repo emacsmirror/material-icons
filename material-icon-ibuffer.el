@@ -3,10 +3,6 @@
 ;; Copyright (C) 2026 Daniu Zhao
 
 ;; Author: Daniu Zhao <zhaodaniu1@gmail.com>
-;; Assisted-by: DeepSeek:DeepSeek-v4-pro
-;; Homepage: https://github.com/zHaOdANiuu/material-icon.el
-;; Version: 0.0.1
-;; Keywords: convenience, buffers, icons
 
 ;; This file is not part of GNU Emacs.
 
