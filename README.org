@@ -1,97 +1,31 @@
-#+title: Material Icon Theme for Emacs
-#+author: Daniu Zhao
-#+language: en
+* Material Icon Theme for Emacs
 
 Material Icon Theme integration for Emacs.  Port of the popular
-[[https://github.com/material-extensions/vscode-material-icon-theme][vscode-material-icon-theme]] extension — display SVG file-type
+[[https://github.com/material-extensions/vscode-material-icons-theme][vscode-material-icons-theme]] extension — display SVG file-type
 and folder-type icons in Dired, Ibuffer, and Speedbar buffers.
 
-*Features*
+[[./test/a.png]]
 
-- 1,200+ hand-crafted SVG icons for file types and folder names
-- File-type icons in Dired (~material-icon-dired-icons-mode~)
-- Mode-based icons in Ibuffer (~material-icon-ibuffer-icons-mode~)
-- Folder and file icons in Speedbar (~material-icon-speedbar-icons-mode~)
-- Configurable icon size
+** Features
+- File-type icons in Dired (~material-icons-dired-icons-mode~)
+- File-type icons in Ibuffer (~material-icons-ibuffer-icons-mode~)
+- Folder and file icons in Speedbar (~material-icons-speedbar-icons-mode~)
 
-*Installation*
-
-The package requires Emacs 27.1 or later.
-
-*From source with ~package-vc~ (Emacs 29.1+)*
+** Installation
 
 #+begin_src elisp
-(use-package material-icon
-  :vc (:url "https://github.com/zHaOdANiuu/material-icon.el")
-  :hook ((dired-mode    . material-icon-dired-icons-mode)
-         (ibuffer-mode  . material-icon-ibuffer-icons-mode))
+(use-package material-icons
+  :vc (:url "https://github.com/zHaOdANiuu/material-icons.el" :rev :newest)
+  :hook
+  (dired-mode . material-icons-dired-icons-mode)
+  (ibuffer-mode . material-icons-ibuffer-icons-mode)
   :init
-  (setq material-icon-size 22)
+  (setq material-icons-size 22)
   (with-eval-after-load 'speedbar
-    (material-icon-speedbar-icons-mode 1)))
+    (material-icons-speedbar-icons-mode 1)))
 #+end_src
 
-*From source (traditional)*
+** Customization
 
-#+begin_src shell
-git clone https://github.com/zHaOdANiuu/material-icon.el.git
-#+end_src
-
-#+begin_src elisp
-(add-to-list 'load-path "/path/to/Material Icon")
-(require 'material-icon)
-
-(add-hook dired-mode-hook #'material-icon-dired-icons-mode)
-(add-hook ibuffer-mode-hook #'material-icon-ibuffer-icons-mode)
-(with-eval-after-load 'speedbar
-  (material-icon-speedbar-icons-mode 1))
-#+end_src
-
-*Usage*
-
-| Command                               | Description                             |
-|---------------------------------------+-----------------------------------------|
-| ~M-x material-icon-dired-icons-mode~    | Toggle file-type icons in Dired         |
-| ~M-x material-icon-ibuffer-icons-mode~  | Toggle mode icons in Ibuffer            |
-| ~M-x material-icon-speedbar-icons-mode~ | Toggle file/folder icons in Speedbar    |
-| ~M-x material-icon-set-icon-size~       | Change icon size (default: font height) |
-
-*Customization*
-
-- ~material-icon-size~ — Icon size in pixels (default: frame character height).
-
-  #+begin_src elisp
-  (setq material-icon-size 22)
-  #+end_src
-
-- ~material-icon-cache~ — Image cache; cleared automatically on size change.
-
-*Icon Set*
-
-This package is a port of [[https://github.com/material-extensions/vscode-material-icon-theme][vscode-material-icon-theme]].
-The ~icons/~ directory contains 1,200+ SVG files from the upstream
-project, covering:
-
-- 1,200+ file-type icons (by extension or filename)
-- 50+ folder icons (by directory name)
-
-*Development*
-
-Requires [[https://github.com/doublep/eldev][Eldev]] for building and testing.
-
-#+begin_src shell
-make compile   # byte-compile all sources
-make lint      # run checkdoc + package-lint + relint
-make test      # run ERT tests
-make run       # interactive smoke test
-make clean     # remove .elc files
-#+end_src
-
-*License*
-
-The Emacs Lisp source files in this package are licensed under
-GPL-3.0-or-later.  See ~LICENSE~.
-
-The SVG icons in the ~icons/~ directory are from
-[[https://github.com/material-extensions/vscode-material-icon-theme][vscode-material-icon-theme]] and are licensed under the MIT license.
-See that project's repository for details.
+- ~material-icons-size~ — Icon size in pixels (default: frame character height).
+- ~material-icons-cache~ — Image cache; cleared automatically on size change.
