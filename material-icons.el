@@ -5,7 +5,7 @@
 ;; Author: Daniu Zhao <zhaodaniu1@gmail.com>
 ;; Assisted-by: DeepSeek:DeepSeek-v4-pro
 ;; Homepage: https://github.com/zHaOdANiuu/material-icons.el
-;; Version: 0.0.1
+;; Version: 1.0.0
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: convenience, icons, svg, theme
 

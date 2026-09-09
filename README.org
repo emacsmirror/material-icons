@@ -13,9 +13,10 @@ and folder-type icons in Dired, Ibuffer, and Speedbar buffers.
 
 ** Installation
 
+[[https://melpa.org/#/material-icons][Now available MELPA.]]
+
 #+begin_src elisp
 (use-package material-icons
-  :vc (:url "https://github.com/zHaOdANiuu/material-icons.el" :rev :newest)
   :hook
   (dired-mode . material-icons-dired-icons-mode)
   (ibuffer-mode . material-icons-ibuffer-icons-mode)
